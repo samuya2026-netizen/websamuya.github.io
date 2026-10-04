@@ -386,6 +386,43 @@
 .social-links-large b{font:18px "DM Mono";font-weight:400;color:var(--gold)}
 @media(max-width:800px){.social-hub{grid-template-columns:1fr;gap:60px}.social-visual{max-width:480px}.social-logo{width:110px;height:110px;font-size:78px}}
 </style>
+
+<style>
+.samuyaviz{
+  padding:clamp(75px,10vw,150px) var(--pad);
+  background:var(--cream);
+  color:#080808;
+  border-top:0;
+  transform:translateY(35px);
+  opacity:0;
+  transition:opacity 1s ease,transform 1s cubic-bezier(.2,.7,.2,1);
+}
+.samuyaviz.show{opacity:1;transform:none}
+.samuyaviz-inner{
+  max-width:1500px;
+  margin:0 auto;
+  text-align:center;
+}
+.samuyaviz img{
+  width:min(94%,1450px);
+  margin:0 auto;
+  height:auto;
+  object-fit:contain;
+  mix-blend-mode:multiply;
+}
+.samuyaviz-caption{
+  margin-top:28px;
+  font:10px "DM Mono",monospace;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:#756d61;
+}
+@media(max-width:700px){
+  .samuyaviz{padding:75px 18px}
+  .samuyaviz img{width:100%}
+  .samuyaviz-caption{font-size:8px;line-height:1.6}
+}
+</style>
 </head>
 
 <body>
@@ -546,6 +583,14 @@
   </div>
 </section>
 
+
+<section class="samuyaviz reveal" id="samuyaviz">
+  <div class="samuyaviz-inner">
+    <img src="image-Photoroom (72).png" alt="Ilustração conceptual da SAMUYA: pessoas, som e experiência sonora adaptada">
+    <div class="samuyaviz-caption">Different people. Different sounds. One adaptive experience.</div>
+  </div>
+</section>
+
 <section class="split-showcase" id="solution">
   <div class="photo-panel"><div class="photo-label">Concept / selective sound management</div></div>
   <div class="concept-panel">
@@ -627,6 +672,7 @@
 <section class="contact" id="contact">
       <div class="contact-top">
         <h2>Build a calmer<em>soundscape.</em></h2>
+        <a class="contact-link" href="https://www.linkedin.com/company/samuya" target="_blank" rel="noopener" aria-label="SAMUYA no LinkedIn">↗</a>
       </div>
 
       <div class="footer">
