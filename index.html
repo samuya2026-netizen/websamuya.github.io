@@ -1,764 +1,291 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0a0a0a" />
-  <meta name="description" content="SAMUYA — Where calm meets sound. Tecnologia para uma experiência sonora mais humana, inteligente e adaptativa." />
-  <title>SAMUYA — Where calm meets sound</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
-
-  <style>
-    :root{
-      --ink:#090909;
-      --ink-2:#111111;
-      --cream:#f0e8d8;
-      --paper:#e8decc;
-      --gold:#e8c960;
-      --gold-2:#b99538;
-      --muted:#a99f8d;
-      --line:rgba(232,201,96,.24);
-      --white:#fffaf0;
-      --radius:30px;
-      --pad:clamp(22px,5vw,72px);
-    }
-
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{
-      margin:0;
-      color:var(--cream);
-      background:var(--ink);
-      font-family:"Manrope",sans-serif;
-      overflow-x:hidden;
-      cursor:none;
-    }
-
-    ::selection{
-      background:var(--gold);
-      color:var(--ink);
-    }
-
-    a{color:inherit;text-decoration:none}
-    img{display:block;width:100%}
-
-    .cursor,.cursor-dot{
-      position:fixed;
-      z-index:9999;
-      pointer-events:none;
-      transform:translate(-50%,-50%);
-      border-radius:999px;
-      mix-blend-mode:difference;
-    }
-    .cursor{
-      width:34px;height:34px;border:1px solid #fff;
-      transition:width .18s ease,height .18s ease,border-color .18s ease;
-    }
-    .cursor-dot{width:5px;height:5px;background:#fff}
-
-    .noise{
-      position:fixed; inset:0; z-index:999; pointer-events:none; opacity:.035;
-      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.9'/%3E%3C/svg%3E");
-    }
-
-    .loader{
-      position:fixed; inset:0; z-index:10000;
-      display:grid; place-items:center;
-      background:var(--ink);
-      transition:transform 1.1s cubic-bezier(.77,0,.18,1);
-    }
-    .loader.hide{transform:translateY(-100%)}
-    .loader-inner{width:min(78vw,760px)}
-    .loader-row{
-      display:flex;justify-content:space-between;align-items:flex-end;
-      font:500 11px/1 "DM Mono",monospace;
-      letter-spacing:.18em;text-transform:uppercase;color:var(--gold)
-    }
-    .loader-bar{height:1px;background:#2a261e;margin-top:18px;overflow:hidden}
-    .loader-fill{height:100%;width:0;background:var(--gold);animation:load 1.6s ease forwards}
-    @keyframes load{to{width:100%}}
-
-    .nav{
-      position:fixed;top:0;left:0;right:0;z-index:50;
-      padding:18px var(--pad);
-      display:flex;align-items:center;justify-content:space-between;
-      transition:background .3s ease,border .3s ease,backdrop-filter .3s ease;
-    }
-    .nav.scrolled{
-      background:rgba(9,9,9,.72);
-      border-bottom:1px solid rgba(232,201,96,.14);
-      backdrop-filter:blur(18px);
-    }
-    .brand{
-      display:flex;align-items:center;gap:13px;
-      font-weight:700;letter-spacing:.18em;font-size:13px;
-    }
-    .brand img{width:42px;height:42px;object-fit:contain}
-    .nav-links{display:flex;align-items:center;gap:28px;font-size:13px;color:#d5cab6}
-    .nav-links a{position:relative}
-    .nav-links a:after{
-      content:"";position:absolute;left:0;bottom:-5px;width:100%;height:1px;
-      background:var(--gold);transform:scaleX(0);transform-origin:left;transition:.25s ease;
-    }
-    .nav-links a:hover:after{transform:scaleX(1)}
-    .nav-cta{
-      padding:11px 17px;border:1px solid rgba(232,201,96,.5);border-radius:999px;color:var(--gold);
-    }
-
-    .hero{
-      position:relative; min-height:100svh;
-      display:grid;align-items:end;
-      padding:120px var(--pad) 54px;
-      overflow:hidden;
-    }
-    .hero-media{
-      position:absolute;inset:0;
-      background:
-        linear-gradient(90deg,rgba(9,9,9,.96) 0%,rgba(9,9,9,.70) 40%,rgba(9,9,9,.25) 78%,rgba(9,9,9,.56) 100%),
-        linear-gradient(0deg,var(--ink) 0%,transparent 32%),
-        url("https://images.unsplash.com/photo-1780969392344-8bb2a975be4c?auto=format&fit=crop&q=86&w=2200")
-        center 35%/cover no-repeat;
-      transform:scale(1.045);
-      animation:heroZoom 9s ease-out forwards;
-    }
-    @keyframes heroZoom{to{transform:scale(1)}}
-    .hero-glow{
-      position:absolute;width:480px;height:480px;border-radius:50%;
-      background:radial-gradient(circle,rgba(232,201,96,.16),transparent 68%);
-      right:12%;top:23%;filter:blur(12px);pointer-events:none;
-    }
-    .hero-grid{
-      position:absolute;inset:0;
-      background-image:
-        linear-gradient(rgba(232,201,96,.055) 1px,transparent 1px),
-        linear-gradient(90deg,rgba(232,201,96,.055) 1px,transparent 1px);
-      background-size:9vw 9vw;
-      mask-image:linear-gradient(to bottom,rgba(0,0,0,.7),transparent 85%);
-    }
-    .hero-content{position:relative;z-index:2;max-width:1050px}
-    .eyebrow{
-      display:flex;align-items:center;gap:13px;
-      font:400 11px/1.3 "DM Mono",monospace;
-      text-transform:uppercase;letter-spacing:.2em;color:var(--gold);
-      margin-bottom:28px;
-    }
-    .eyebrow:before{content:"";width:38px;height:1px;background:var(--gold)}
-    .hero h1{
-      margin:0;max-width:900px;
-      font-size:clamp(61px,10.5vw,164px);
-      line-height:.82;letter-spacing:-.066em;font-weight:500;
-    }
-    .hero h1 .serif{
-      display:block;
-      font-family:"Playfair Display",serif;font-style:italic;font-weight:500;
-      color:var(--gold);
-      letter-spacing:-.045em;
-      margin-left:10vw;
-    }
-    .hero-bottom{
-      margin-top:48px;display:flex;justify-content:space-between;align-items:flex-end;gap:30px;
-      max-width:1080px;
-    }
-    .hero-copy{
-      max-width:530px;color:#d2c8b8;font-size:clamp(15px,1.4vw,20px);line-height:1.6;
-    }
-    .scroll-hint{
-      width:86px;height:86px;border-radius:50%;border:1px solid rgba(232,201,96,.48);
-      display:grid;place-items:center;color:var(--gold);font-size:24px;
-      animation:float 2.4s ease-in-out infinite;
-    }
-    @keyframes float{50%{transform:translateY(8px)}}
-
-    .manifesto{
-      padding:150px var(--pad);
-      display:grid;grid-template-columns:.8fr 1.8fr;gap:7vw;
-      border-top:1px solid rgba(232,201,96,.12);
-    }
-    .section-index{
-      font:400 11px "DM Mono",monospace;
-      color:var(--gold);letter-spacing:.18em;text-transform:uppercase;
-      position:sticky;top:110px;height:max-content;
-    }
-    .manifesto-text{
-      font-size:clamp(34px,5vw,76px);line-height:1.05;letter-spacing:-.045em;
-    }
-    .manifesto-text .muted{color:#6e675c}
-    .manifesto-text em{
-      font-family:"Playfair Display",serif;font-weight:500;color:var(--gold);
-    }
-
-    .split-showcase{
-      min-height:100svh;
-      display:grid;grid-template-columns:1.05fr .95fr;
-      border-top:1px solid rgba(232,201,96,.12);
-      border-bottom:1px solid rgba(232,201,96,.12);
-    }
-    .photo-panel{
-      min-height:100svh;position:relative;overflow:hidden;
-      background:url("https://images.unsplash.com/photo-1553775744-0bae9da7f5e7?auto=format&fit=crop&q=88&w=1600")
-        center/cover no-repeat;
-    }
-    .photo-panel:after{
-      content:"";position:absolute;inset:0;
-      background:linear-gradient(180deg,transparent 45%,rgba(9,9,9,.78));
-    }
-    .photo-label{
-      position:absolute;left:30px;bottom:28px;z-index:2;
-      font:400 10px "DM Mono",monospace;text-transform:uppercase;letter-spacing:.15em;
-      color:#fff;
-    }
-    .concept-panel{
-      padding:110px var(--pad);
-      display:flex;flex-direction:column;justify-content:space-between;
-      background:var(--cream);color:var(--ink);
-    }
-    .concept-panel .eyebrow{color:#715b24}
-    .concept-panel .eyebrow:before{background:#715b24}
-    .concept-panel h2{
-      margin:0;font-size:clamp(48px,6.5vw,100px);line-height:.9;letter-spacing:-.06em;font-weight:600;
-    }
-    .concept-panel h2 span{
-      display:block;font-family:"Playfair Display",serif;font-style:italic;font-weight:500;color:var(--gold-2);
-    }
-    .concept-copy{
-      display:grid;grid-template-columns:1fr 1fr;gap:30px;
-      margin-top:70px;border-top:1px solid #aca18f;padding-top:28px;
-    }
-    .concept-copy p{margin:0;line-height:1.7;color:#3d3832;font-size:14px}
-
-    .system{padding:150px var(--pad)}
-    .system-head{
-      display:flex;justify-content:space-between;align-items:end;gap:40px;margin-bottom:80px;
-    }
-    .system h2{
-      margin:0;font-size:clamp(48px,7vw,112px);line-height:.9;letter-spacing:-.055em;font-weight:500;
-    }
-    .system-intro{max-width:430px;color:#a89f90;line-height:1.7;font-size:14px}
-    .steps{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line)}
-    .step{padding:28px 24px 50px 0;border-right:1px solid var(--line);min-height:330px;position:relative}
-    .step:not(:first-child){padding-left:24px}
-    .step:last-child{border-right:0}
-    .step-num{font:400 11px "DM Mono",monospace;color:var(--gold);letter-spacing:.16em}
-    .step h3{margin:110px 0 16px;font-size:28px;font-weight:500}
-    .step p{margin:0;color:#968d7e;line-height:1.65;font-size:13px}
-    .pulse{
-      position:absolute;right:24px;top:24px;width:28px;height:28px;border-radius:50%;
-      border:1px solid var(--gold);
-    }
-    .pulse:before,.pulse:after{
-      content:"";position:absolute;inset:-1px;border:1px solid var(--gold);border-radius:50%;opacity:0;
-      animation:pulse 2.8s infinite;
-    }
-    .pulse:after{animation-delay:1.4s}
-    @keyframes pulse{0%{transform:scale(1);opacity:.7}100%{transform:scale(2.8);opacity:0}}
-
-    .visual-break{
-      height:88svh;position:relative;overflow:hidden;
-      background:
-        linear-gradient(90deg,rgba(9,9,9,.76),rgba(9,9,9,.08) 52%,rgba(9,9,9,.52)),
-        url("https://images.unsplash.com/photo-1776779399573-0c19831317df?auto=format&fit=crop&q=88&w=2200")
-        center/cover no-repeat;
-    }
-    .visual-copy{
-      position:absolute;left:var(--pad);bottom:var(--pad);max-width:800px;
-    }
-    .visual-copy h2{
-      font-size:clamp(50px,8vw,126px);line-height:.86;letter-spacing:-.06em;margin:0;font-weight:500;
-    }
-    .visual-copy em{font-family:"Playfair Display",serif;color:var(--gold);font-weight:500}
-
-    .belief{
-      background:var(--gold);color:var(--ink);padding:120px var(--pad);
-      display:grid;grid-template-columns:1fr 1.4fr;gap:6vw;
-    }
-    .belief-small{
-      font:500 11px "DM Mono",monospace;text-transform:uppercase;letter-spacing:.17em;
-    }
-    .belief blockquote{
-      margin:0;font-size:clamp(39px,5.4vw,82px);line-height:1.02;letter-spacing:-.045em;font-weight:600;
-    }
-    .belief blockquote em{font-family:"Playfair Display",serif;font-weight:500}
-
-    .future{
-      padding:150px var(--pad) 120px;
-      display:grid;grid-template-columns:1.1fr .9fr;gap:6vw;align-items:center;
-    }
-    .future-card{
-      border:1px solid rgba(232,201,96,.22);border-radius:var(--radius);padding:clamp(30px,5vw,64px);
-      background:linear-gradient(145deg,#15130f,#0d0d0c);
-      position:relative;overflow:hidden;
-    }
-    .future-card:after{
-      content:"";position:absolute;width:380px;height:380px;border-radius:50%;right:-140px;top:-140px;
-      background:radial-gradient(circle,rgba(232,201,96,.15),transparent 68%);
-    }
-    .future h2{font-size:clamp(50px,6.5vw,96px);line-height:.92;letter-spacing:-.055em;margin:0 0 40px}
-    .future p{color:#a79f91;line-height:1.8;max-width:600px}
-    .future .big-s{
-      font-family:"Playfair Display",serif;font-size:clamp(250px,37vw,600px);line-height:.62;
-      color:transparent;-webkit-text-stroke:1px rgba(232,201,96,.5);
-      transform:translateX(4vw);
-      user-select:none;
-    }
-
-    .contact{
-      padding:130px var(--pad) 34px;background:var(--cream);color:var(--ink);
-    }
-    .contact-top{display:flex;justify-content:space-between;gap:40px;align-items:flex-end}
-    .contact h2{
-      font-size:clamp(55px,9vw,150px);line-height:.82;letter-spacing:-.065em;margin:0;font-weight:600;
-    }
-    .contact h2 em{
-      display:block;font-family:"Playfair Display",serif;font-weight:500;color:var(--gold-2);
-    }
-    .contact-link{
-      width:140px;height:140px;border-radius:50%;background:var(--ink);color:var(--gold);
-      display:grid;place-items:center;font-size:32px;transition:transform .35s ease;
-    }
-    .contact-link:hover{transform:rotate(18deg) scale(1.06)}
-    .footer{
-      margin-top:100px;padding-top:28px;border-top:1px solid #bcb09d;
-      display:grid;grid-template-columns:1fr auto auto;gap:28px;align-items:end;
-      font-size:12px;color:#575149;
-    }
-    .footer a:hover{color:#000}
-    .credits{font-size:9px;line-height:1.5;max-width:360px;color:#766d60}
-
-    .reveal{opacity:0;transform:translateY(35px);transition:opacity .9s ease,transform .9s cubic-bezier(.2,.7,.2,1)}
-    .reveal.visible{opacity:1;transform:none}
-
-    @media(max-width:900px){
-      body{cursor:auto}.cursor,.cursor-dot{display:none}
-      .nav-links a:not(.nav-cta){display:none}
-      .hero{padding-top:120px}
-      .hero-media{background-position:63% center}
-      .hero-bottom{align-items:flex-start}
-      .manifesto,.split-showcase,.belief,.future{grid-template-columns:1fr}
-      .manifesto{gap:36px}
-      .section-index{position:static}
-      .photo-panel{min-height:75svh}
-      .concept-panel{min-height:80svh}
-      .steps{grid-template-columns:1fr 1fr}
-      .step:nth-child(2){border-right:0}
-      .step:nth-child(-n+2){border-bottom:1px solid var(--line)}
-      .system-head{align-items:flex-start;flex-direction:column}
-      .future .big-s{text-align:center}
-    }
-
-    @media(max-width:620px){
-      .hero h1 .serif{margin-left:0}
-      .hero-bottom{flex-direction:column}
-      .scroll-hint{width:64px;height:64px}
-      .concept-copy{grid-template-columns:1fr}
-      .steps{grid-template-columns:1fr}
-      .step{border-right:0!important;border-bottom:1px solid var(--line)}
-      .step:last-child{border-bottom:0}
-      .step:not(:first-child){padding-left:0}
-      .visual-break{height:76svh}
-      .contact-top{align-items:flex-start;flex-direction:column}
-      .contact-link{width:90px;height:90px}
-      .footer{grid-template-columns:1fr;align-items:start}
-    }
-  </style>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="SAMUYA — Where calm meets sound. Tecnologia de gestão sonora seletiva.">
+<title>SAMUYA — Where calm meets sound</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&display=swap" rel="stylesheet">
 <style>
-.journey{padding:150px var(--pad)}.journey-head,.team-head{display:flex;justify-content:space-between;align-items:end;gap:30px;margin-bottom:70px}.journey h2,.team h2,.partners h2{font-size:clamp(50px,7vw,110px);line-height:.88;letter-spacing:-.06em;margin:0;font-weight:500}.timeline{border-top:1px solid var(--line)}.event{display:grid;grid-template-columns:180px 1fr 150px;gap:30px;padding:30px 0;border-bottom:1px solid var(--line);align-items:center}.event-year,.badge{font:11px "DM Mono";letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}.event h3{margin:0;font-size:clamp(20px,2.2vw,31px);font-weight:500}.event small{display:block;color:#898072;margin-top:7px}.badge{justify-self:end;border:1px solid rgba(232,201,96,.5);border-radius:99px;padding:9px 12px}.team{background:var(--cream);color:#080808;padding:140px var(--pad)}.team h2 em{font-family:"Playfair Display";font-style:italic;color:var(--gold-2)}.team-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.member{background:#ded3bf;padding:13px}.member-photo{aspect-ratio:4/5;background:#c8bca7;display:grid;place-items:center;font:10px "DM Mono";letter-spacing:.15em;color:#756c60}.member-info{padding:18px 7px}.member-name{font-size:19px;font-weight:600}.role{font:10px "DM Mono";letter-spacing:.12em;text-transform:uppercase;color:#6d6459;margin-top:6px}.socials{display:flex;gap:8px;margin-top:15px}.socials a{width:30px;height:30px;border:1px solid #9e9382;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:700}.partners{padding:150px var(--pad)}.partners h2{margin:18px 0}.partner-grid{display:grid;grid-template-columns:repeat(3,1fr);margin-top:60px;border-top:1px solid var(--line);border-left:1px solid var(--line)}.partner-slot{height:150px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:grid;place-items:center;color:#5d574e;font:10px "DM Mono";letter-spacing:.15em;text-transform:uppercase}.future{padding:150px var(--pad);display:grid;grid-template-columns:1.2fr .8fr;gap:6vw;align-items:center}.future-card{border:1px solid rgba(232,201,96,.25);border-radius:30px;padding:clamp(30px,5vw,65px);background:linear-gradient(145deg,#15130f,#0c0c0b)}.future h2{font-size:clamp(50px,6.5vw,95px);line-height:.9;letter-spacing:-.06em;margin:0 0 40px}.future p{color:#9f978a;line-height:1.8}.big-s{font:500 clamp(260px,37vw,590px)/.6 "Playfair Display";color:transparent;-webkit-text-stroke:1px rgba(232,201,96,.48);text-align:center}@media(max-width:900px){.event{grid-template-columns:120px 1fr}.team-grid{grid-template-columns:1fr 1fr}.partner-grid{grid-template-columns:1fr 1fr}.future{grid-template-columns:1fr}}@media(max-width:600px){.event{grid-template-columns:1fr;gap:10px}.badge{justify-self:start}.team-grid,.partner-grid{grid-template-columns:1fr 1fr}}
-</style>
-
-<style>
-.social-hub{min-height:88svh;padding:140px var(--pad);display:grid;grid-template-columns:1.05fr .95fr;gap:8vw;align-items:center;background:#0a0a09;border-top:1px solid rgba(232,201,96,.12)}
-.social-visual{aspect-ratio:1/1;max-width:650px;margin:auto;width:100%;border:1px solid rgba(232,201,96,.22);border-radius:50%;position:relative;display:grid;place-items:center;background:radial-gradient(circle at center,rgba(232,201,96,.12),rgba(232,201,96,.025) 32%,transparent 64%)}
-.social-orbit{position:absolute;border:1px solid rgba(232,201,96,.18);border-radius:50%;animation:orbitPulse 4s ease-in-out infinite}
-.orbit-1{inset:10%}.orbit-2{inset:22%;animation-delay:.8s}.orbit-3{inset:35%;animation-delay:1.6s}
-@keyframes orbitPulse{50%{transform:scale(1.035);opacity:.45}}
-.social-logo{width:150px;height:150px;border:1px solid rgba(232,201,96,.6);border-radius:50%;display:grid;place-items:center;color:var(--gold);font:italic 105px/1 "Playfair Display";position:relative;z-index:2;background:#080808}
-.social-wordmark{position:absolute;bottom:21%;font-size:clamp(16px,2vw,25px);letter-spacing:.35em;font-weight:600;z-index:2}
-.social-tagline{position:absolute;bottom:14%;font:10px "DM Mono";letter-spacing:.18em;text-transform:uppercase;color:#958b7c}
-.social-content h2{font-size:clamp(60px,8vw,125px);line-height:.82;letter-spacing:-.07em;margin:15px 0 35px;font-weight:500}
-.social-content h2 em{font:italic 500 1em "Playfair Display";color:var(--gold)}
-.social-content p{max-width:510px;color:#9f978a;line-height:1.75;font-size:15px}
-.social-links-large{margin-top:45px;border-top:1px solid var(--line)}
-.social-links-large a{display:flex;justify-content:space-between;align-items:center;padding:20px 0;border-bottom:1px solid var(--line);font-size:18px;transition:.3s}
-.social-links-large a:hover{color:var(--gold);padding-left:12px}
-.social-links-large b{font:18px "DM Mono";font-weight:400;color:var(--gold)}
-@media(max-width:800px){.social-hub{grid-template-columns:1fr;gap:60px}.social-visual{max-width:480px}.social-logo{width:110px;height:110px;font-size:78px}}
-</style>
-
-<style>
-.samuyaviz{
-  padding:clamp(75px,10vw,150px) var(--pad);
-  background:var(--cream);
-  color:#080808;
-  border-top:0;
-  transform:translateY(35px);
-  opacity:0;
-  transition:opacity 1s ease,transform 1s cubic-bezier(.2,.7,.2,1);
+:root{
+  --black:#090908; --black2:#11110f; --cream:#eee8da; --cream2:#e4dbc9;
+  --gold:#d9b84d; --gold2:#ead18a; --muted:#958e80; --line:rgba(255,255,255,.12);
+  --darkline:rgba(10,10,8,.14); --pad:clamp(22px,5vw,76px);
 }
-.samuyaviz.show{opacity:1;transform:none}
-.samuyaviz-inner{
-  max-width:1500px;
-  margin:0 auto;
-  text-align:center;
+*{box-sizing:border-box} html{scroll-behavior:smooth}
+body{margin:0;background:var(--black);color:#f4f0e7;font-family:"DM Sans",Arial,sans-serif}
+button,a{font:inherit} a{color:inherit;text-decoration:none}
+::selection{background:var(--gold);color:#111}
+.noise{position:fixed;inset:0;pointer-events:none;opacity:.035;z-index:99;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E")}
+.header{position:fixed;top:0;left:0;right:0;height:78px;display:flex;align-items:center;justify-content:space-between;padding:0 var(--pad);z-index:50;background:linear-gradient(180deg,rgba(9,9,8,.95),rgba(9,9,8,.5),transparent);backdrop-filter:blur(10px)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:13px}
+.brand-mark{width:34px;height:34px;border:1px solid rgba(217,184,77,.6);border-radius:50%;display:grid;place-items:center;color:var(--gold)!important;font:italic 22px "Playfair Display";letter-spacing:0;background:rgba(217,184,77,.04)}
+.brand-name{letter-spacing:.28em;color:#f4f0e7!important}
+.brand-name span{color:var(--gold)!important}
+.menu{display:flex;gap:20px;align-items:center}.menu button{border:0;background:none;color:#bbb4a8;font:10px "DM Mono";letter-spacing:.1em;text-transform:uppercase;cursor:pointer;padding:8px}.menu button:hover,.menu button.active{color:var(--gold)}
+.menu-toggle{display:none;border:1px solid var(--line);background:none;color:#fff;border-radius:50%;width:42px;height:42px}
+.page{display:none;min-height:100vh}.page.active{display:block}
+.eyebrow{font:10px "DM Mono";letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+.hero{min-height:100svh;display:grid;align-items:end;padding:145px var(--pad) 70px;position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;inset:20% -20% -30%;background:radial-gradient(circle,rgba(217,184,77,.11),transparent 55%);pointer-events:none}
+.hero h1{font-size:clamp(70px,13vw,190px);line-height:.8;letter-spacing:-.075em;font-weight:500;margin:28px 0;position:relative;z-index:1}
+.serif{font-family:"Playfair Display";font-style:italic;color:var(--gold2)}
+.hero-sub{max-width:640px;color:#a49c8d;line-height:1.8;font-size:16px;position:relative;z-index:1}
+.hero-bottom{display:flex;justify-content:space-between;align-items:end;margin-top:65px;position:relative;z-index:1}
+.cta{display:inline-flex;gap:12px;align-items:center;border:1px solid rgba(217,184,77,.55);border-radius:999px;padding:13px 18px;font:10px "DM Mono";letter-spacing:.1em;text-transform:uppercase;transition:.3s}.cta:hover{background:var(--gold);color:#111}
+.scroll{font:9px "DM Mono";letter-spacing:.18em;color:#766f63;text-transform:uppercase}
+.home-strip{background:var(--cream);color:#0b0b09;padding:100px var(--pad);display:grid;grid-template-columns:.7fr 1.3fr;gap:8vw}
+.home-strip h2,.dark-title{font-size:clamp(45px,6.4vw,95px);line-height:.9;letter-spacing:-.06em;font-weight:500;margin:0}.home-strip p{max-width:720px;font-size:clamp(20px,2.3vw,31px);line-height:1.35;margin:0}
+.home-cards{padding:100px var(--pad);display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.card{border:1px solid var(--line);padding:28px;min-height:270px;display:flex;flex-direction:column;justify-content:space-between;transition:.35s}.card:hover{transform:translateY(-5px);border-color:rgba(217,184,77,.5)}.card-num{font:10px "DM Mono";color:var(--gold)}.card h3{font-size:30px;margin:0 0 12px;font-weight:500}.card p{color:#928b7d;line-height:1.65;margin:0}.arrow{color:var(--gold);font:18px "DM Mono"}
+.page-head{padding:170px var(--pad) 85px;background:linear-gradient(180deg,#0b0b09,#10100e);border-bottom:1px solid var(--line)}
+.page-head h1{font-size:clamp(65px,10vw,145px);line-height:.82;letter-spacing:-.07em;font-weight:500;margin:20px 0 0}.page-head p{max-width:720px;color:#9d9587;line-height:1.8;font-size:16px;margin-top:32px}
+.cream{background:var(--cream);color:#0a0a08}.cream .eyebrow{color:#8e6e13}
+.problem-grid{padding:90px var(--pad);display:grid;grid-template-columns:1fr 1.2fr;gap:8vw}.problem-grid h2{font-size:clamp(42px,5vw,78px);line-height:.95;font-weight:500;letter-spacing:-.055em;margin:0}.problem-copy{font-size:20px;line-height:1.7}.problem-copy p{margin-top:0}.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:45px}.stat{border-top:1px solid var(--darkline);padding-top:15px}.stat b{font-size:28px;font-weight:500;display:block}.stat small{color:#71695d;font:10px "DM Mono";text-transform:uppercase;letter-spacing:.08em;line-height:1.5}
+.illustration{padding:30px var(--pad) 110px;background:var(--cream)}.illustration img{width:min(94%,1450px);display:block;margin:auto;mix-blend-mode:multiply}.caption{text-align:center;font:10px "DM Mono";letter-spacing:.16em;text-transform:uppercase;color:#766f63;margin-top:22px}
+.science{padding:100px var(--pad);background:#f5efe4;color:#111}.science-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:55px}.source{border:1px solid var(--darkline);padding:25px;min-height:260px}.source h3{font-size:21px;font-weight:500}.source p{color:#635d53;line-height:1.65;font-size:14px}.source a{color:#806512;font:10px "DM Mono";text-transform:uppercase;letter-spacing:.1em}
+.process{padding:90px var(--pad);background:#0c0c0b}.process-grid{margin-top:55px;display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line)}.step{min-height:270px;padding:28px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);position:relative}.step-no{font:10px "DM Mono";color:var(--gold)}.step h3{font-size:27px;font-weight:500;margin-top:70px}.step p{color:#918a7c;line-height:1.6;font-size:14px}.step .node{position:absolute;top:27px;right:27px;width:34px;height:34px;border:1px solid rgba(217,184,77,.45);border-radius:50%;display:grid;place-items:center;color:var(--gold);font:12px "DM Mono"}
+.demo{padding:100px var(--pad);background:#11110f}.demo-shell{border:1px solid var(--line);border-radius:24px;overflow:hidden;background:#0b0b0a}.demo-top{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid var(--line);font:10px "DM Mono";letter-spacing:.1em;text-transform:uppercase}.live{color:#8bc76a}.sound-list{padding:25px}.sound{display:grid;grid-template-columns:130px 1fr 100px;gap:20px;align-items:center;padding:18px 0;border-bottom:1px solid rgba(255,255,255,.08)}.sound-name{font-size:14px}.meter{height:7px;background:#262520;border-radius:99px;overflow:hidden}.meter i{display:block;height:100%;width:var(--w);background:linear-gradient(90deg,#75632e,var(--gold));border-radius:99px;transition:width 1.2s}.decision{font:10px "DM Mono";text-align:right;color:#aaa293}.decision.keep{color:#9ed47c}.demo-controls{padding:20px 25px;display:flex;justify-content:space-between;align-items:center;gap:15px}.demo-controls button{border:1px solid rgba(217,184,77,.45);background:none;color:#eadfca;border-radius:999px;padding:11px 16px;font:10px "DM Mono";cursor:pointer}.demo-controls button:hover{background:var(--gold);color:#111}.demo-note{color:#746d61;font-size:12px;line-height:1.5}
+.product{padding:100px var(--pad);background:var(--cream);color:#111}.product-grid{display:grid;grid-template-columns:1fr 1fr;gap:8vw;align-items:center}.product-visual{aspect-ratio:1;background:radial-gradient(circle,#efe2bd 0 20%,transparent 21%),linear-gradient(135deg,#dcd0ba,#f6efe2);border:1px solid #c8bca7;position:relative;display:grid;place-items:center;overflow:hidden}.product-ring{width:58%;height:58%;border:1px solid #9f8b61;border-radius:50%;display:grid;place-items:center}.product-core{width:42%;height:42%;border-radius:50%;background:#0b0b0a;color:var(--gold);display:grid;place-items:center;font:italic 100px "Playfair Display";box-shadow:0 0 80px rgba(217,184,77,.16)}.product h2{font-size:clamp(50px,6vw,90px);line-height:.88;font-weight:500;letter-spacing:-.06em;margin:15px 0 35px}.product p{color:#5f594f;line-height:1.75}.specs{margin-top:40px;border-top:1px solid var(--darkline)}.spec{display:flex;justify-content:space-between;padding:15px 0;border-bottom:1px solid var(--darkline);font:11px "DM Mono";text-transform:uppercase;letter-spacing:.08em}.spec span:last-child{color:#806512}
+.audience{padding:100px var(--pad);background:#0d0d0c}.aud-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:55px}.aud{border:1px solid var(--line);padding:26px;min-height:250px}.aud h3{font-size:24px;font-weight:500}.aud p{color:#8e877a;font-size:13px;line-height:1.6}.focus{margin-top:35px;padding:22px;border-left:2px solid var(--gold);color:#aaa293;line-height:1.7}
+.story{padding:100px var(--pad);background:var(--cream);color:#111}.timeline{margin-top:55px;border-top:1px solid var(--darkline)}.event{display:grid;grid-template-columns:120px 1fr auto;gap:30px;padding:28px 0;border-bottom:1px solid var(--darkline);align-items:center}.event-year{font:11px "DM Mono";color:#8a6c16}.event h3{margin:0;font-size:22px;font-weight:500}.event small{display:block;color:#736b5e;margin-top:6px}.badge{font:10px "DM Mono";border:1px solid #b9a36b;border-radius:99px;padding:9px 12px;color:#705815;text-transform:uppercase}
+.challenge{padding:100px var(--pad);background:#11110f}.challenge-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:55px}.challenge-card{border:1px solid var(--line);padding:30px;min-height:220px}.challenge-card h3{font-size:24px;font-weight:500}.challenge-card p{color:#90897c;line-height:1.65}
+.safety{padding:100px var(--pad);background:#e9e1d1;color:#111}.safety-grid{display:grid;grid-template-columns:1fr 1fr;gap:8vw;margin-top:55px}.safety-item{border-top:1px solid var(--darkline);padding:22px 0}.safety-item h3{font-size:22px;font-weight:500;margin:0 0 10px}.safety-item p{color:#645e54;line-height:1.65;margin:0}.keep{color:#55733d;font:10px "DM Mono";letter-spacing:.1em;text-transform:uppercase}
+.team{padding:100px var(--pad);background:#0c0c0b}.team-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:55px}.member{border:1px solid var(--line);padding:12px}.member-photo{aspect-ratio:4/5;background:linear-gradient(145deg,#25231e,#141411);display:grid;place-items:center;color:#615c51;font:10px "DM Mono";text-transform:uppercase;letter-spacing:.12em}.member-info{padding:18px 5px}.member-name{font-size:18px}.role{color:#817a6e;font:10px "DM Mono";text-transform:uppercase;margin-top:5px}.socials{display:flex;gap:7px;margin-top:13px}.socials a{width:30px;height:30px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;font-size:10px}.socials a:hover{border-color:var(--gold);color:var(--gold)}
+.social-page{padding:150px var(--pad) 100px;background:var(--cream);color:#111;min-height:100vh}.social-layout{display:grid;grid-template-columns:1fr 1fr;gap:8vw;align-items:center}.social-orb{aspect-ratio:1;border-radius:50%;background:#080807;display:grid;place-items:center;box-shadow:0 0 120px rgba(217,184,77,.12)}.social-s{font:italic clamp(110px,16vw,210px) "Playfair Display";color:var(--gold)}.social-page h1{font-size:clamp(60px,8vw,110px);line-height:.82;letter-spacing:-.07em;font-weight:500;margin:20px 0}.social-page h1 em{font-family:"Playfair Display";color:#8c6b12}.social-page p{color:#655f55;line-height:1.7;max-width:520px}.social-links{margin-top:40px;border-top:1px solid var(--darkline)}.social-links a{display:flex;justify-content:space-between;padding:18px 0;border-bottom:1px solid var(--darkline);font-size:17px}.social-links a:hover{color:#8c6b12;padding-left:10px}
+.footer{padding:50px var(--pad);border-top:1px solid var(--line);display:flex;justify-content:space-between;color:#716b60;font:10px "DM Mono";letter-spacing:.1em;text-transform:uppercase}.footer a:hover{color:var(--gold)}
+.reveal{opacity:0;transform:translateY(25px);transition:.8s ease}.reveal.show{opacity:1;transform:none}
+@media(max-width:900px){
+ .menu{display:none}.menu-toggle{display:block}.header.open .menu{display:flex;position:absolute;top:70px;left:15px;right:15px;background:#11110f;border:1px solid var(--line);padding:15px;flex-direction:column;align-items:stretch}.header.open .menu button{text-align:left}
+ .home-strip,.problem-grid,.product-grid,.social-layout,.safety-grid{grid-template-columns:1fr}.home-cards,.science-grid,.process-grid{grid-template-columns:1fr 1fr}.aud-grid{grid-template-columns:1fr 1fr}.team-grid{grid-template-columns:1fr 1fr}
 }
-.samuyaviz img{
-  width:min(94%,1450px);
-  margin:0 auto;
-  height:auto;
-  object-fit:contain;
-  mix-blend-mode:multiply;
-}
-.samuyaviz-caption{
-  margin-top:28px;
-  font:10px "DM Mono",monospace;
-  letter-spacing:.18em;
-  text-transform:uppercase;
-  color:#756d61;
-}
-@media(max-width:700px){
-  .samuyaviz{padding:75px 18px}
-  .samuyaviz img{width:100%}
-  .samuyaviz-caption{font-size:8px;line-height:1.6}
+@media(max-width:600px){
+ .hero{padding-top:125px}.hero-bottom{align-items:start;flex-direction:column;gap:25px}.home-cards,.science-grid,.process-grid,.aud-grid,.team-grid,.challenge-grid{grid-template-columns:1fr}.stat-row{grid-template-columns:1fr}.sound{grid-template-columns:85px 1fr 75px;gap:10px}.event{grid-template-columns:1fr;gap:9px}.badge{justify-self:start}.footer{flex-direction:column;gap:15px}.illustration img{width:100%}
 }
 </style>
 </head>
-
 <body>
-  <div class="noise"></div>
-  <div class="cursor"></div>
-  <div class="cursor-dot"></div>
-
-  <div class="loader" id="loader">
-    <div class="loader-inner">
-      <div class="loader-row"><span>SAMUYA</span><span>ENTERING SOUNDSPACE</span></div>
-      <div class="loader-bar"><div class="loader-fill"></div></div>
-    </div>
-  </div>
-
-  <nav class="nav" id="nav">
-    <a class="brand" href="#top" aria-label="SAMUYA — início">
-      <img src="https://samuya2026-netizen.github.io/link.github.io/%C3%81reas%20%284%29-Photoroom.png" alt="Símbolo SAMUYA">
-      <span>SAMUYA</span>
-    </a>
-    <div class="nav-links">
-      <a href="#vision">Visão</a>
-      <a href="#system">Sistema</a>
-      <a href="#future">Futuro</a>
-      <a href="#socials">Redes sociais</a>
-      <a class="nav-cta" href="#contact">Falar connosco</a>
-    </div>
+<div class="noise"></div>
+<header class="header" id="header">
+  <a class="brand" href="#" onclick="go('home');return false;">
+  <span class="brand-mark">S</span><span class="brand-name">SAMU<span>YA</span></span>
+</a>
+  <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+  <nav class="menu">
+    <button data-page="home" onclick="go('home')">Home</button>
+    <button data-page="problem" onclick="go('problem')">O problema</button>
+    <button data-page="technology" onclick="go('technology')">Tecnologia</button>
+    <button data-page="product" onclick="go('product')">O produto</button>
+    <button data-page="story" onclick="go('story')">A nossa história</button>
+    <button data-page="research" onclick="go('research')">Research</button>
+    <button data-page="safety" onclick="go('safety')">Segurança</button>
+    <button data-page="team" onclick="go('team')">Equipa</button>
+    <button data-page="social" onclick="go('social')">Redes sociais</button>
   </nav>
+</header>
 
-  <main id="top">
-    <section class="hero">
-      <div class="hero-media" data-parallax="0.18"></div>
-      <div class="hero-grid"></div>
-      <div class="hero-glow"></div>
-
-      <div class="hero-content">
-        <div class="eyebrow reveal">Biomedical technology · Entrepreneurship</div>
-        <h1 class="reveal">
-          Calm meets
-          <span class="serif">sound.</span>
-        </h1>
-
-        <div class="hero-bottom reveal">
-          <div class="hero-copy">
-            A SAMUYA explora uma nova relação entre pessoas e ambiente sonoro:
-            menos ruído irrelevante, mais presença, contexto e controlo.
-          </div>
-          <a class="scroll-hint" href="#vision" aria-label="Explorar">↓</a>
-        </div>
-      </div>
-    </section>
-
-    <section class="manifesto" id="vision">
-      <div class="section-index">01 / The point of view</div>
-      <div class="manifesto-text reveal">
-        Nem todos ouvimos o mundo da mesma forma.
-        <span class="muted">Por isso, uma experiência sonora não devia ser igual para todos.</span>
-        A SAMUYA imagina tecnologia que <em>entende o contexto</em> antes de intervir.
-      </div>
-    </section>
-
-    <section class="split-showcase">
-      <div class="photo-panel" data-parallax="0.09">
-        <div class="photo-label">Real environment / real listening</div>
-      </div>
-      <div class="concept-panel">
-        <div>
-          <div class="eyebrow">A different approach</div>
-          <h2>Not silence.<span>Choice.</span></h2>
-        </div>
-        <div class="concept-copy reveal">
-          <p>
-            O objetivo não é desligar o mundo. É reconhecer o que acontece à nossa volta
-            e adaptar a experiência auditiva ao que realmente importa naquele momento.
-          </p>
-          <p>
-            Uma camada inteligente entre pessoa, ambiente e som — pensada para ser
-            discreta, contextual e profundamente humana.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <section class="system" id="system">
-      <div class="system-head">
-        <h2 class="reveal">From noise<br>to meaning.</h2>
-        <p class="system-intro reveal">
-          Um princípio simples: observar o ambiente, interpretar o contexto e responder
-          com uma experiência sonora dinâmica — sem transformar tecnologia em distração.
-        </p>
-      </div>
-
-      <div class="steps">
-        <article class="step reveal">
-          <span class="step-num">01 — LISTEN</span>
-          <span class="pulse"></span>
-          <h3>Detetar</h3>
-          <p>O sistema identifica padrões e acontecimentos relevantes no ambiente sonoro.</p>
-        </article>
-        <article class="step reveal">
-          <span class="step-num">02 — READ</span>
-          <span class="pulse"></span>
-          <h3>Interpretar</h3>
-          <p>O contexto transforma som bruto em informação com significado.</p>
-        </article>
-        <article class="step reveal">
-          <span class="step-num">03 — ADAPT</span>
-          <span class="pulse"></span>
-          <h3>Adaptar</h3>
-          <p>A resposta sonora muda em função do ambiente e da experiência pretendida.</p>
-        </article>
-        <article class="step reveal">
-          <span class="step-num">04 — FEEL</span>
-          <span class="pulse"></span>
-          <h3>Experienciar</h3>
-          <p>Menos esforço para gerir o ruído. Mais espaço para atenção, calma e presença.</p>
-        </article>
-      </div>
-    </section>
-
-    <section class="visual-break">
-      <div class="visual-copy reveal">
-        <h2>The world stays.<br><em>The experience changes.</em></h2>
-      </div>
-    </section>
-
-    <section class="belief">
-      <div class="belief-small">02 / Samuya belief</div>
-      <blockquote class="reveal">
-        “Não queremos que deixes de ouvir.
-        Queremos que <em>escolhas como ouvir.</em>”
-      </blockquote>
-    </section>
-
-    <section class="future" id="future">
-      <div class="future-card reveal">
-        <div class="eyebrow">Designed for what comes next</div>
-        <h2>Invisible tech.<br>Visible impact.</h2>
-        <p>
-          A melhor tecnologia auditiva pode ser a que quase desaparece da interação:
-          percebe o ambiente, reduz fricção e deixa a pessoa continuar presente.
-        </p>
-        <p>
-          A SAMUYA está a construir essa direção — na interseção entre áudio,
-          inteligência contextual, design e bem-estar sensorial.
-        </p>
-      </div>
-      <div class="big-s" aria-hidden="true">S</div>
-    </section>
-
-    
-<section class="manifesto" id="problem">
-  <div class="section-index">02 / The problem</div>
-  <div class="manifesto-text reveal">
-    Algumas pessoas autistas podem experienciar <em>hipersensibilidade a estímulos sonoros</em>.
-    Sons comuns do quotidiano podem tornar-se intensos e contribuir para sobrecarga sensorial.
-    A pergunta da SAMUYA foi simples: <span class="muted">e se fosse possível reduzir apenas aquilo que está a causar o problema, sem desligar o resto do mundo?</span>
-    <br><br><small style="font:12px 'DM Mono';color:#8e8577">A SAMUYA nasceu de um projeto académico da Licenciatura em Tecnologia Biomédica, na unidade curricular de Empreendedorismo.</small>
-  </div>
-</section>
-
-
-<section class="samuyaviz reveal" id="samuyaviz">
-  <div class="samuyaviz-inner">
-    <img src="image-Photoroom (72).png" alt="Ilustração conceptual da SAMUYA: pessoas, som e experiência sonora adaptada">
-    <div class="samuyaviz-caption">Different people. Different sounds. One adaptive experience.</div>
-  </div>
-</section>
-
-<section class="split-showcase" id="solution">
-  <div class="photo-panel"><div class="photo-label">Concept / selective sound management</div></div>
-  <div class="concept-panel">
+<main>
+<section class="page active" id="home">
+  <div class="hero">
     <div>
-      <div class="eyebrow">Our solution</div>
-      <h2>Not silence.<span>Choice.</span></h2>
-    </div>
-    <div class="concept-copy reveal">
-      <p>A solução pretende identificar determinados sons e reduzir ou bloquear seletivamente esses estímulos, preservando os restantes sons relevantes do ambiente.</p>
-      <p>Em vez de simplesmente desligar o som, queremos adaptar a experiência à pessoa e ao contexto.</p>
-    </div>
-  </div>
-</section>
-
-<section class="journey" id="journey">
-  <div class="journey-head"><h2>Our<br>journey.</h2><div class="section-index">03 / 2026</div></div>
-  <div class="timeline">
-    <div class="event"><div class="event-year">2026</div><div><h3>Innovation Day IPS</h3><small>Instituto Politécnico de Setúbal</small></div><div class="badge">🥈 2.º lugar</div></div>
-    <div class="event"><div class="event-year">2026</div><div><h3>Poliempreende Regional de Setúbal</h3><small>Empreendedorismo e inovação</small></div><div class="badge">🥈 2.º lugar</div></div>
-    <div class="event"><div class="event-year">2026</div><div><h3>Net Me Up Alcochete</h3><small>Programa de Empreendedorismo</small></div><div class="badge">Participante</div></div>
-    <div class="event"><div class="event-year">2026</div><div><h3>Noite Europeia dos Investigadores</h3><small>Participação na banca IPStartUp</small></div><div class="badge">Participante</div></div>
-  </div>
-</section>
-
-<section class="team" id="team">
-  <div class="team-head"><h2>Four minds.<br><em>One direction.</em></h2><div class="section-index">04 / Co-founders</div></div>
-  <div class="team-grid">
-    <article class="member"><div class="member-photo"><span>Fotografia</span></div><div class="member-info"><div class="member-name">João Anacleto</div><div class="role">Co-Founder</div><div class="socials"><a href="#" aria-label="LinkedIn">in</a></div></div></article>
-    <article class="member"><div class="member-photo"><span>Fotografia</span></div><div class="member-info"><div class="member-name">Luís Correia</div><div class="role">Co-Founder</div><div class="socials"><a href="#" aria-label="LinkedIn">in</a><a href="#" aria-label="Instagram">ig</a></div></div></article>
-    <article class="member"><div class="member-photo"><span>Fotografia</span></div><div class="member-info"><div class="member-name">Gonçalo</div><div class="role">Co-Founder</div><div class="socials"><a href="#" aria-label="LinkedIn">in</a><a href="#" aria-label="Instagram">ig</a></div></div></article>
-    <article class="member"><div class="member-photo"><span>Fotografia</span></div><div class="member-info"><div class="member-name">Guilherme</div><div class="role">Co-Founder</div><div class="socials"><a href="#" aria-label="LinkedIn">in</a><a href="#" aria-label="Instagram">ig</a></div></div></article>
-  </div>
-</section>
-
-<section class="partners" id="partners">
-  <div class="section-index">05 / Collaboration</div>
-  <h2>Built with the right <span class="serif">people.</span></h2>
-  <p class="system-intro">A SAMUYA está aberta a construir parcerias com instituições, empresas, investigadores e especialistas que partilhem a ambição de transformar uma ideia académica numa solução com impacto real.</p>
-  <div class="partner-grid">
-    <div class="partner-slot">Partner / logo</div><div class="partner-slot">Partner / logo</div>
-    <div class="partner-slot">Partner / logo</div><div class="partner-slot">Partner / logo</div>
-    <div class="partner-slot">Partner / logo</div><div class="partner-slot">Partner / logo</div>
-  </div>
-</section>
-
-<section class="future" id="future">
-  <div class="future-card reveal">
-    <div class="eyebrow">What comes next</div>
-    <h2>From concept<br>to prototype.</h2>
-    <p>A SAMUYA está atualmente na fase de desenvolvimento conceptual e desenho da solução. O próximo passo é transformar esta visão num protótipo funcional e começar a testar, aprender e melhorar.</p>
-    <p>O objetivo mantém-se simples: <strong>ajudar quem mais precisa a viver ambientes sonoros de forma mais confortável e com menor risco de sobrecarga.</strong></p>
-  </div>
-  <div class="big-s">S</div>
-</section>
-
-
-<section class="social-hub" id="socials">
-  <div class="social-visual">
-    <div class="social-orbit orbit-1"></div>
-    <div class="social-orbit orbit-2"></div>
-    <div class="social-orbit orbit-3"></div>
-    <div class="social-logo">S</div>
-    <div class="social-wordmark">SAMUYA</div>
-    <div class="social-tagline">Where calm meets sound</div>
-  </div>
-  <div class="social-content">
-    <div class="eyebrow">06 / Connect</div>
-    <h2>Redes<br><em>sociais.</em></h2>
-    <p>Descobre a SAMUYA, acompanha o nosso percurso e segue o desenvolvimento do projeto através das nossas plataformas.</p>
-    <div class="social-links-large">
-      <a href="https://www.facebook.com/" target="_blank" rel="noopener"><span>Facebook</span><b>↗</b></a>
-      <a href="https://www.instagram.com/" target="_blank" rel="noopener"><span>Instagram</span><b>↗</b></a>
-      <a href="https://www.linkedin.com/company/samuya" target="_blank" rel="noopener"><span>LinkedIn</span><b>↗</b></a>
-      <a href="https://samuya2026-netizen.github.io/link.github.io/" target="_blank" rel="noopener"><span>Centro SAMUYA</span><b>↗</b></a>
-    </div>
-  </div>
-</section>
-
-<section class="contact" id="contact">
-      <div class="contact-top">
-        <h2>Build a calmer<em>soundscape.</em></h2>
-        <a class="contact-link" href="https://www.linkedin.com/company/samuya" target="_blank" rel="noopener" aria-label="SAMUYA no LinkedIn">↗</a>
+      <div class="eyebrow">Biomedical technology · Entrepreneurship · 2026</div>
+      <h1>Where calm<br>meets <span class="serif">sound.</span></h1>
+      <p class="hero-sub">A SAMUYA nasceu de um projeto académico da Licenciatura em Tecnologia Biomédica. Estamos a desenvolver o conceito de uma tecnologia de gestão sonora seletiva, pensada para adaptar a experiência auditiva às necessidades de cada pessoa.</p>
+      <div class="hero-bottom">
+        <a class="cta" href="#" onclick="go('technology');return false;">Descobrir como funciona <span>↗</span></a>
+        <div class="scroll">Scroll / explore</div>
       </div>
+    </div>
+  </div>
+  <div class="home-strip">
+    <div><div class="eyebrow">The idea</div><h2>Not silence.<br><em>Choice.</em></h2></div>
+    <p>Nem todos ouvimos o mundo da mesma forma. A SAMUYA explora uma abordagem em que determinados estímulos sonoros podem ser identificados e adaptados, sem desligar a pessoa do ambiente.</p>
+  </div>
+  <div class="illustration">
+    <img src="image-Photoroom (72).png" alt="Ilustração conceptual da SAMUYA">
+    <div class="caption">Different people · Different sounds · One adaptive experience</div>
+  </div>
+  <div class="home-cards">
+    <a class="card reveal" href="#" onclick="go('problem');return false;"><div class="card-num">01 / PROBLEM</div><div><h3>O problema</h3><p>Quando estímulos sonoros quotidianos se tornam demasiado intensos, a experiência do ambiente pode mudar.</p></div><div class="arrow">↗</div></a>
+    <a class="card reveal" href="#" onclick="go('technology');return false;"><div class="card-num">02 / TECHNOLOGY</div><div><h3>Como funciona</h3><p>Captar. Analisar. Identificar. Decidir. Adaptar. Uma arquitetura pensada para explicar o “como”.</p></div><div class="arrow">↗</div></a>
+    <a class="card reveal" href="#" onclick="go('product');return false;"><div class="card-num">03 / PRODUCT</div><div><h3>O produto</h3><p>Hoje é um conceito em desenvolvimento. O próximo marco é transformar a ideia num protótipo funcional.</p></div><div class="arrow">↗</div></a>
+  </div>
+</section>
 
-      <div class="footer">
-        <div>
-          <strong>SAMUYA</strong><br>
-          Where calm meets sound.
-        </div>
-        <a href="https://samuya2026-netizen.github.io/link.github.io/" target="_blank" rel="noopener">Redes sociais ↗</a>
-        <div>© <span id="year"></span> SAMUYA</div>
+<section class="page" id="problem">
+  <div class="page-head"><div class="eyebrow">01 / Understanding the problem</div><h1>When sound<br>becomes <span class="serif">too much.</span></h1><p>O foco inicial da SAMUYA é apoiar pessoas com autismo que experienciam dificuldades relacionadas com estímulos sonoros. A literatura descreve diferenças de reatividade e processamento sensorial auditivo, mas também mostra uma grande variabilidade entre pessoas.</p></div>
+  <div class="problem-grid cream">
+    <div><div class="eyebrow">Why this matters</div><h2>O ambiente sonoro pode ser parte da experiência de sobrecarga.</h2></div>
+    <div class="problem-copy"><p>Algumas pessoas com autismo podem apresentar hiperreatividade a sons ou dificuldade em ignorar ruído de fundo. Isto não significa que todas as pessoas tenham a mesma experiência — a variabilidade individual é central para qualquer solução responsável.</p><p>A SAMUYA parte dessa diferença: em vez de assumir que todo o som deve ser eliminado, queremos explorar uma gestão mais seletiva e personalizada.</p>
+      <div class="stat-row"><div class="stat"><b>55</b><small>estudos numa revisão sistemática de 2026 sobre respostas auditivas MMN/MMF</small></div><div class="stat"><b>2015–22</b><small>período analisado numa revisão sistemática de alterações auditivas no autismo</small></div><div class="stat"><b>1 regra</b><small>não presumir que todas as pessoas experienciam o som da mesma forma</small></div></div>
+    </div>
+  </div>
+  <div class="science">
+    <div class="eyebrow">Science in context</div><h2 class="dark-title">Evidence,<br><span class="serif">not assumptions.</span></h2>
+    <div class="science-grid">
+      <article class="source"><div class="eyebrow">Review · 2026</div><h3>Auditory sensitivity in autism</h3><p>Uma revisão sistemática de 55 estudos encontrou padrões recorrentes, embora heterogéneos, em respostas auditivas MMN/MMF em grupos autistas, reforçando a necessidade de estudar diferenças auditivas com contexto e cautela.</p><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC13377376/" target="_blank">Ler estudo ↗</a></article>
+      <article class="source"><div class="eyebrow">Review · 2023</div><h3>Auditory sensory alterations</h3><p>Uma revisão sistemática aborda alterações sensoriais auditivas no autismo e descreve fenómenos como hipersensibilidade e dificuldade em filtrar determinados estímulos.</p><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10033482/" target="_blank">Ler estudo ↗</a></article>
+      <article class="source"><div class="eyebrow">Practice · NAS</div><h3>Sensory differences</h3><p>A National Autistic Society descreve como diferenças sensoriais podem influenciar a experiência quotidiana e, em alguns contextos, a concentração e participação.</p><a href="https://www.autism.org.uk/learn/knowledge-hub/professional-practice/adjustments-sensory" target="_blank">Ver recurso ↗</a></article>
+    </div>
+  </div>
+</section>
 
-        <div class="credits">
-          Fotografia real utilizada como direção visual através de imagens gratuitas do Unsplash.
-          Antes de lançamento comercial, recomenda-se guardar localmente as imagens finais e manter
-          os créditos/licenças correspondentes.
+<section class="page" id="technology">
+  <div class="page-head"><div class="eyebrow">02 / The technology</div><h1>How does<br><span class="serif">SAMUYA</span> work?</h1><p>A arquitetura abaixo é apresentada como conceito de desenvolvimento. O protótipo ainda está a ser desenhado; por isso, não afirmamos que estes módulos já estejam implementados.</p></div>
+  <div class="process">
+    <div class="eyebrow">Concept architecture</div><h2 class="dark-title">From sound<br>to <span class="serif">choice.</span></h2>
+    <div class="process-grid">
+      <article class="step reveal"><div class="step-no">01 / CAPTAR</div><div class="node">01</div><h3>Captar</h3><p>Sensores/microfones recolhem informação acústica do ambiente.</p></article>
+      <article class="step reveal"><div class="step-no">02 / ANALISAR</div><div class="node">02</div><h3>Analisar</h3><p>O sinal pode ser processado para extrair características relevantes do som.</p></article>
+      <article class="step reveal"><div class="step-no">03 / IDENTIFICAR</div><div class="node">03</div><h3>Identificar</h3><p>O sistema deverá classificar categorias ou eventos sonoros definidos no perfil do utilizador.</p></article>
+      <article class="step reveal"><div class="step-no">04 / DECIDIR</div><div class="node">04</div><h3>Decidir</h3><p>Uma camada de decisão determina que sons devem ser mantidos, reduzidos ou adaptados.</p></article>
+      <article class="step reveal"><div class="step-no">05 / ADAPTAR</div><div class="node">05</div><h3>Adaptar</h3><p>O processamento de áudio aplica a resposta definida ao contexto e às preferências.</p></article>
+      <article class="step reveal"><div class="step-no">06 / EXPERIENCIAR</div><div class="node">06</div><h3>Experienciar</h3><p>A pessoa continua ligada ao ambiente, mas com uma experiência sonora potencialmente mais confortável.</p></article>
+    </div>
+  </div>
+  <div class="demo">
+    <div class="eyebrow">Interactive concept</div><h2 class="dark-title">See the idea<br><span class="serif">in action.</span></h2>
+    <div class="demo-shell" style="margin-top:50px">
+      <div class="demo-top"><span>SAMUYA / SOUND ENVIRONMENT</span><span class="live">● Concept demo</span></div>
+      <div class="sound-list">
+        <div class="sound"><span class="sound-name">🚗 Trânsito</span><div class="meter"><i style="--w:78%"></i></div><span class="decision">ADAPT</span></div>
+        <div class="sound"><span class="sound-name">🗣 Conversa</span><div class="meter"><i style="--w:55%"></i></div><span class="decision">ADAPT</span></div>
+        <div class="sound"><span class="sound-name">🚨 Sirene</span><div class="meter"><i style="--w:84%"></i></div><span class="decision keep">KEEP</span></div>
+        <div class="sound"><span class="sound-name">🔔 Alarme</span><div class="meter"><i style="--w:61%"></i></div><span class="decision keep">KEEP</span></div>
+        <div class="sound"><span class="sound-name">🎵 Música</span><div class="meter"><i style="--w:68%"></i></div><span class="decision">ADAPT</span></div>
+      </div>
+      <div class="demo-controls"><span class="demo-note">Demonstração conceptual — não representa ainda um protótipo validado.</span><button onclick="runDemo()">Simular análise ↗</button></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="product">
+  <div class="page-head"><div class="eyebrow">03 / The product</div><h1>So, what is<br><span class="serif">SAMUYA?</span></h1><p>A SAMUYA é a marca/projeto. O produto final ainda está em desenvolvimento. A nossa proposta é criar um sistema de gestão sonora seletiva, com uma interface de utilização e um componente físico de captação/processamento a definir durante a fase de prototipagem.</p></div>
+  <div class="product">
+    <div class="product-grid">
+      <div class="product-visual"><div class="product-ring"><div class="product-core">S</div></div></div>
+      <div><div class="eyebrow">Concept · not final hardware</div><h2>Designed to<br><span class="serif">adapt.</span></h2><p>Estamos ainda a tomar decisões de engenharia sobre formato, sensores, processamento, alimentação, interface e ergonomia. Esta transparência faz parte do projeto: primeiro definimos e testamos a arquitetura; depois fechamos o produto.</p>
+      <div class="specs"><div class="spec"><span>Stage</span><span>Concept / Design</span></div><div class="spec"><span>Next milestone</span><span>Prototype</span></div><div class="spec"><span>Priority</span><span>Human-centred</span></div><div class="spec"><span>Validation</span><span>To be tested</span></div></div></div>
+    </div>
+  </div>
+  <div class="audience">
+    <div class="eyebrow">Potential users</div><h2 class="dark-title">Designed for<br><span class="serif">people.</span></h2>
+    <div class="aud-grid">
+      <article class="aud"><div class="eyebrow">01</div><h3>Pessoas com autismo</h3><p>Foco inicial do projeto: apoiar pessoas que experienciam dificuldades relacionadas com determinados estímulos sonoros.</p></article>
+      <article class="aud"><div class="eyebrow">02</div><h3>Estudantes</h3><p>Possível aplicação futura em ambientes onde ruído de fundo dificulta concentração.</p></article>
+      <article class="aud"><div class="eyebrow">03</div><h3>Profissionais</h3><p>Possíveis contextos de trabalho com ambientes sonoros complexos ou exigentes.</p></article>
+      <article class="aud"><div class="eyebrow">04</div><h3>Outros perfis</h3><p>A diversificação será explorada apenas depois de validar a necessidade, segurança e utilidade do conceito.</p></article>
+    </div>
+    <div class="focus"><b>Foco inicial:</b> pessoas com autismo. A expansão para outros utilizadores é uma possibilidade de desenvolvimento, não uma promessa de eficácia.</div>
+  </div>
+</section>
+
+<section class="page" id="story">
+  <div class="page-head"><div class="eyebrow">04 / Our story</div><h1>From classroom<br>to <span class="serif">concept.</span></h1><p>A SAMUYA nasceu numa cadeira de Empreendedorismo da Licenciatura em Tecnologia Biomédica. O percurso mostra a evolução de uma ideia académica para um projeto que agora entra na fase de desenho do protótipo.</p></div>
+  <div class="story">
+    <div class="timeline">
+      <div class="event"><div class="event-year">ORIGIN</div><div><h3>Projeto académico</h3><small>Licenciatura em Tecnologia Biomédica · Unidade Curricular de Empreendedorismo</small></div><div class="badge">Início</div></div>
+      <div class="event"><div class="event-year">2026</div><div><h3>Innovation Day IPS</h3><small>Apresentação do projeto</small></div><div class="badge">🥈 2.º lugar</div></div>
+      <div class="event"><div class="event-year">2026</div><div><h3>Poliempreende Regional de Setúbal</h3><small>Empreendedorismo e inovação</small></div><div class="badge">🥈 2.º lugar</div></div>
+      <div class="event"><div class="event-year">2026</div><div><h3>Net Me Up Alcochete</h3><small>Programa de Empreendedorismo</small></div><div class="badge">Participante</div></div>
+      <div class="event"><div class="event-year">2026</div><div><h3>Noite Europeia dos Investigadores</h3><small>Participação na banca IPStartUp</small></div><div class="badge">Participante</div></div>
+      <div class="event"><div class="event-year">NEXT</div><div><h3>Protótipo</h3><small>Desenho → construção → testes → aprendizagem</small></div><div class="badge">Próximo</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="research">
+  <div class="page-head"><div class="eyebrow">05 / Research</div><h1>Science<br>behind the <span class="serif">question.</span></h1><p>A investigação não serve para provar antecipadamente que a SAMUYA vai funcionar. Serve para enquadrar o problema, orientar decisões e definir o que terá de ser testado.</p></div>
+  <div class="science">
+    <div class="science-grid">
+      <article class="source"><div class="eyebrow">01 · Auditory processing</div><h3>Diferenças auditivas no autismo</h3><p>Revisões da literatura descrevem alterações e variabilidade no processamento auditivo e na reatividade a sons.</p><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10033482/" target="_blank">Fonte científica ↗</a></article>
+      <article class="source"><div class="eyebrow">02 · Sensory reactivity</div><h3>Hiper-, hipo- e procura sensorial</h3><p>Grandes conjuntos de dados mostram que a reatividade sensorial não é uniforme e pode variar entre pessoas e modalidades.</p><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10464466/" target="_blank">Fonte científica ↗</a></article>
+      <article class="source"><div class="eyebrow">03 · Everyday life</div><h3>Som e contexto</h3><p>O impacto de diferenças sensoriais depende do contexto, do ambiente e da pessoa — uma razão para a personalização ser um princípio do projeto.</p><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11638897/" target="_blank">Fonte científica ↗</a></article>
+    </div>
+    <div style="margin-top:60px;border-top:1px solid var(--darkline);padding-top:25px;color:#6e675c;font-size:13px;line-height:1.7">
+      <b>Nota científica:</b> as fontes sustentam o enquadramento do problema, não a eficácia da SAMUYA. Qualquer afirmação de eficácia, segurança ou benefício terapêutico terá de ser suportada por desenvolvimento, testes e validação apropriados.
+    </div>
+  </div>
+</section>
+
+<section class="page" id="safety">
+  <div class="page-head"><div class="eyebrow">06 / Safety & limitations</div><h1>Safety comes<br><span class="serif">first.</span></h1><p>Uma tecnologia que interfere na experiência auditiva tem de pensar não só no conforto, mas também na segurança, privacidade, personalização e possibilidade de erro.</p></div>
+  <div class="safety">
+    <div class="safety-grid">
+      <div>
+        <div class="safety-item"><span class="keep">01 · Safety sounds</span><h3>Nem todos os sons devem ser reduzidos.</h3><p>Alarmes, sirenes e outros sinais relevantes para a segurança podem precisar de ser preservados. A lógica de decisão terá de considerar o contexto.</p></div>
+        <div class="safety-item"><span class="keep">02 · Personalisation</span><h3>Uma configuração não serve para toda a gente.</h3><p>Preferências, sensibilidades e contextos variam. A personalização será uma hipótese central a investigar.</p></div>
+      </div>
+      <div>
+        <div class="safety-item"><span class="keep">03 · Errors</span><h3>Reconhecimento de sons não é infalível.</h3><p>Ambientes complexos, sons sobrepostos e eventos inesperados podem gerar classificações incorretas. Isto terá de ser testado.</p></div>
+        <div class="safety-item"><span class="keep">04 · Privacy</span><h3>O áudio é informação sensível.</h3><p>O desenho do sistema deverá minimizar recolha e retenção desnecessárias e considerar proteção de dados desde a arquitetura.</p></div>
+      </div>
+    </div>
+    <div style="margin-top:60px;background:#11110f;color:#eee;padding:35px;border-radius:22px"><div class="eyebrow">Our principle</div><h2 style="font-size:clamp(35px,5vw,70px);line-height:.95;font-weight:500;margin:18px 0">We don't want to<br><span class="serif">mute the world.</span></h2><p style="color:#989082;max-width:700px;line-height:1.7">Queremos investigar se é possível tornar a experiência sonora mais adaptável — sem comprometer informação importante, autonomia ou segurança.</p></div>
+  </div>
+  <div class="challenge"><div class="eyebrow">Open questions</div><h2 class="dark-title">The challenges<br>we still need to <span class="serif">solve.</span></h2><div class="challenge-grid">
+    <article class="challenge-card"><div class="eyebrow">01</div><h3>Classificação</h3><p>Como distinguir sons semelhantes quando existem vários estímulos ao mesmo tempo?</p></article>
+    <article class="challenge-card"><div class="eyebrow">02</div><h3>Latência</h3><p>Quanto tempo pode passar entre captar um som e adaptar a experiência sem criar uma resposta desconfortável?</p></article>
+    <article class="challenge-card"><div class="eyebrow">03</div><h3>Personalização</h3><p>Como traduzir preferências individuais em regras simples e utilizáveis?</p></article>
+    <article class="challenge-card"><div class="eyebrow">04</div><h3>Validação</h3><p>Que testes técnicos, de usabilidade e de segurança serão necessários antes de qualquer utilização real?</p></article>
+  </div></div>
+</section>
+
+<section class="page" id="team">
+  <div class="page-head"><div class="eyebrow">07 / The team</div><h1>Four minds.<br><span class="serif">One direction.</span></h1><p>Quatro cofundadores, uma ideia nascida no contexto académico e uma ambição: transformar uma pergunta num produto que possa ser testado, melhorado e validado.</p></div>
+  <div class="team">
+    <div class="team-grid">
+      <article class="member"><div class="member-photo">Fotografia</div><div class="member-info"><div class="member-name">João Anacleto</div><div class="role">Co-Founder</div><div class="socials"><a href="#" aria-label="LinkedIn">in</a></div></div></article>
+      <article class="member"><div class="member-photo">Fotografia</div><div class="member-info"><div class="member-name">Luís Correia</div><div class="role">Co-Founder</div><div class="socials"><a href="https://www.linkedin.com/in/lu%C3%ADs-correia03/" target="_blank">in</a><a href="#" aria-label="Instagram">ig</a></div></div></article>
+      <article class="member"><div class="member-photo">Fotografia</div><div class="member-info"><div class="member-name">Gonçalo</div><div class="role">Co-Founder</div><div class="socials"><a href="#" aria-label="LinkedIn">in</a><a href="#" aria-label="Instagram">ig</a></div></div></article>
+      <article class="member"><div class="member-photo">Fotografia</div><div class="member-info"><div class="member-name">Guilherme</div><div class="role">Co-Founder</div><div class="socials"><a href="#" aria-label="LinkedIn">in</a><a href="#" aria-label="Instagram">ig</a></div></div></article>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="social">
+  <div class="social-page">
+    <div class="social-layout">
+      <div class="social-orb"><div class="social-s">S</div></div>
+      <div><div class="eyebrow">08 / Connect</div><h1>Redes<br><em>sociais.</em></h1><p>Segue a SAMUYA, acompanha o nosso percurso e encontra os nossos canais num único lugar.</p>
+        <div class="social-links">
+          <a href="https://samuya2026-netizen.github.io/link.github.io/" target="_blank"><span>Centro SAMUYA</span><b>↗</b></a>
+          <a href="https://www.linkedin.com/company/samuya" target="_blank"><span>LinkedIn</span><b>↗</b></a>
+          <a href="https://www.instagram.com/samuya/" target="_blank"><span>Instagram</span><b>↗</b></a>
+          <a href="https://www.facebook.com/samuya" target="_blank"><span>Facebook</span><b>↗</b></a>
         </div>
       </div>
-    </section>
-  </main>
+    </div>
+  </div>
+</section>
+</main>
 
-  <script>
-    const loader = document.getElementById("loader");
-    window.addEventListener("load", () => {
-      setTimeout(() => loader.classList.add("hide"), 900);
-    });
+<footer class="footer"><span>SAMUYA · Where calm meets sound</span><a href="#" onclick="go('social');return false">Redes sociais ↗</a></footer>
 
-    document.getElementById("year").textContent = new Date().getFullYear();
-
-    const nav = document.getElementById("nav");
-    window.addEventListener("scroll", () => {
-      nav.classList.toggle("scrolled", window.scrollY > 50);
-    });
-
-    const revealObserver = new IntersectionObserver(entries => {
-      entries.forEach((entry, i) => {
-        if(entry.isIntersecting){
-          setTimeout(() => entry.target.classList.add("visible"), i * 65);
-          revealObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: .12 });
-
-    document.querySelectorAll(".reveal").forEach(el => revealObserver.observe(el));
-
-    const cursor = document.querySelector(".cursor");
-    const dot = document.querySelector(".cursor-dot");
-
-    window.addEventListener("mousemove", e => {
-      cursor.style.left = e.clientX + "px";
-      cursor.style.top = e.clientY + "px";
-      dot.style.left = e.clientX + "px";
-      dot.style.top = e.clientY + "px";
-    });
-
-    document.querySelectorAll("a, .step").forEach(el => {
-      el.addEventListener("mouseenter", () => {
-        cursor.style.width = "58px";
-        cursor.style.height = "58px";
-      });
-      el.addEventListener("mouseleave", () => {
-        cursor.style.width = "34px";
-        cursor.style.height = "34px";
-      });
-    });
-
-    const parallaxEls = [...document.querySelectorAll("[data-parallax]")];
-    let ticking = false;
-
-    function parallax(){
-      const y = window.scrollY;
-      parallaxEls.forEach(el => {
-        const speed = Number(el.dataset.parallax || .1);
-        const rect = el.parentElement.getBoundingClientRect();
-        const local = y - (el.parentElement.offsetTop || 0);
-        if(rect.bottom > 0 && rect.top < innerHeight){
-          el.style.transform = `translate3d(0, ${local * speed}px, 0) scale(1.04)`;
-        }
-      });
-      ticking = false;
-    }
-
-    window.addEventListener("scroll", () => {
-      if(!ticking){
-        requestAnimationFrame(parallax);
-        ticking = true;
-      }
-    }, {passive:true});
-  </script>
+<script>
+const pages=[...document.querySelectorAll('.page')];
+function go(id){
+  pages.forEach(p=>p.classList.toggle('active',p.id===id));
+  document.querySelectorAll('.menu button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));
+  document.getElementById('header').classList.remove('open');
+  window.scrollTo({top:0,behavior:'instant'});
+  setTimeout(observeReveals,50);
+}
+function toggleMenu(){document.getElementById('header').classList.toggle('open')}
+function observeReveals(){
+  document.querySelectorAll('.reveal').forEach(el=>{
+    const r=el.getBoundingClientRect();
+    if(r.top<window.innerHeight*.9) el.classList.add('show');
+  });
+}
+function runDemo(){
+  const bars=[...document.querySelectorAll('.sound .meter i')];
+  bars.forEach((b,i)=>{b.style.width=(45+Math.random()*48).toFixed(0)+'%'});
+}
+window.addEventListener('scroll',observeReveals);
+window.addEventListener('load',observeReveals);
+</script>
 </body>
 </html>
